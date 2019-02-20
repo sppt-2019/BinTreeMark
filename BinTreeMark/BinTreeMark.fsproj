@@ -6,7 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Program.fs"/>
+        <Compile Include="Statistics.fs" />
+        <Compile Include="Mark8.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
 </Project>
