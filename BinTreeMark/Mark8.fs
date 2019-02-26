@@ -13,6 +13,7 @@ type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration:TimeSpan) =
     let args = args
     let msg = message
     let clock = new Clock()
+    let durationNs:int64 = int64(duration.Milliseconds) * 1000L
     
     let mutable aMean : double = 0.0
     let mutable sDeviation : double = 0.0
@@ -24,17 +25,25 @@ type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration:TimeSpan) =
     member this.Result () = sprintf "%-30s \t %20.2f \t %20.2f" msg this.ArithmeticMean this.Deviation
     
     member this.Run () =
-        let rec RunWhile (start:DateTime) (dur:TimeSpan) (sum:double) (times:double list) (iterations:int64) =
-            if DateTime.Now.Subtract(start) < dur then
-                clock.Start()
-                let res = func args
-                let time = double(clock.Check())
-                let newTimes = List.append times [time]
-                RunWhile start dur (time + sum) newTimes (iterations * 2L)
+        let rec ExecuteNTimes (n:int64) =
+            if n = 1L then
+                func args
             else
-                let m = mean sum (double(iterations))
-                let sd = standardDeviation times m iterations
+                let res = ExecuteNTimes (n - 1L)
+                func args
+        
+        let rec RunWhile (dur:int64) (iterations:int64) (deltaTime:double) (deltaTimeSquared:double) (totalCount:int64) =
+            (* if DateTime.Now.Subtract(start) < dur then *)
+            clock.Start()
+            let res = ExecuteNTimes iterations
+            let time = clock.Check()
+            
+            if time < dur && iterations < int64(Int32.MaxValue / 2) then
+                RunWhile dur (iterations * 2L) (double(time) + deltaTime) (deltaTimeSquared + double(time * time)) (totalCount + iterations)
+            else
+                let m = double(time) / double(iterations)
+                let sd = Math.Sqrt((deltaTimeSquared - m * m * double(iterations)) / double(iterations - 1L))
                 (m, sd)
-        let resTuple = RunWhile DateTime.Now duration 0.0 [] 0L
+        let resTuple = RunWhile durationNs 5L 0.0 0.0 0L
         this.ArithmeticMean <- fst resTuple
         this.Deviation <- snd resTuple
