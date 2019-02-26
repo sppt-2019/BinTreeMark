@@ -71,12 +71,12 @@ let main argv =
     let t = createTree 5 getRandomNumber
     printfn "%A" t
     printfn "Setting up benchmarks"
-    let eagerRunner = new SestoftRunner<tree, int list>(leaves, t, "Eager Sequential", 250)
-    let lazyRunner = new SestoftRunner<tree, int list>(lazyLeaves, t, "Lazy Sequential", 250)
-    let eagerAsyncRunner = new SestoftRunner<tree, int list>(asyncLeaves, t, "Eager Async", 250)
-    let lazyAsyncRunner = new SestoftRunner<tree, int list>(lazyAsyncLeaves, t, "Lazy Async", 250)
-    let eagerParaRunner = new SestoftRunner<tree, int list>(parallelLeaves, t, "Eager Parallel", 250)
-    let lazyParaRunner = new SestoftRunner<tree, int list>(lazyParallel, t, "Lazy Parallel", 250)
+    let eagerRunner = new SestoftRunner<tree, int list>(leaves, t, "Eager Sequential", TimeSpan.FromMilliseconds(250.0))
+    let lazyRunner = new SestoftRunner<tree, int list>(lazyLeaves, t, "Lazy Sequential", TimeSpan.FromMilliseconds(250.0))
+    let eagerAsyncRunner = new SestoftRunner<tree, int list>(asyncLeaves, t, "Eager Async", TimeSpan.FromMilliseconds(250.0))
+    let lazyAsyncRunner = new SestoftRunner<tree, int list>(lazyAsyncLeaves, t, "Lazy Async", TimeSpan.FromMilliseconds(250.0))
+    let eagerParaRunner = new SestoftRunner<tree, int list>(parallelLeaves, t, "Eager Parallel", TimeSpan.FromMilliseconds(250.0))
+    let lazyParaRunner = new SestoftRunner<tree, int list>(lazyParallel, t, "Lazy Parallel", TimeSpan.FromMilliseconds(250.0))
     
     printfn "Running benchmarks"
     eagerRunner.Run()
