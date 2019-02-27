@@ -1,5 +1,7 @@
 module BinTreeMark.Problems.LeafAccumulator
 
+open System.Threading.Tasks
+
 type tree =
     | Node of left : tree * right : tree
     | Leaf of int
@@ -53,6 +55,16 @@ let parallelLeaves t =
                                        |> List.concat
     }
     Async.RunSynchronously (asyncAccum t)
+
+let tplParallelLeaves t = 
+    let rec leavesAccum n =
+        match n with
+        | (Leaf i) -> [i] 
+        | Node (left, right) -> List.append
+                                    (Task.Factory.StartNew<int list> (fun () ->  leavesAccum left)).Result
+                                    (Task.Factory.StartNew<int list> (fun () ->  leavesAccum right)).Result
+                                
+    leavesAccum t
 
 let lazyAsyncLeaves a =
     let lst = lazy(asyncLeaves a)

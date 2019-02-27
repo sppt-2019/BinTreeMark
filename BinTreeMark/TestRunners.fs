@@ -14,8 +14,8 @@ type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration:TimeSpan) =
     let msg = message
     let clock = new Clock()
     
-    let mutable aMean : double = 0.0
-    let mutable sDeviation : double = 0.0
+    let mutable aMean : double = Double.NaN
+    let mutable sDeviation : double = Double.NaN
     
     member val ArithmeticMean = aMean with get, set                   
     member val Deviation = sDeviation with get, set
@@ -25,7 +25,7 @@ type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration:TimeSpan) =
     
     member this.Run () =
         let rec RunWhile (start:DateTime) (dur:TimeSpan) (sum:double) (times:double list) (iterations:int64) =
-            if DateTime.Now.Subtract(start) < dur then
+            if DateTime.UtcNow.Subtract(start) < dur then
                 clock.Start()
                 let res = func args
                 let time = double(clock.Check())
@@ -46,8 +46,8 @@ type MorellRunner<'T, 'U>(func:'T -> 'U, problems:'T list, message:string, repit
     let reps = repitions
     let clock = new Clock()
     
-    let mutable aMean : double = 0.0
-    let mutable sDeviation : double = 0.0
+    let mutable aMean : double = Double.NaN
+    let mutable sDeviation : double = Double.NaN
     
     member val ArithmeticMean = aMean with get, set                   
     member val Deviation = sDeviation with get, set
