@@ -36,8 +36,23 @@ type Linpack () =
             let rec SumUnchecked acc elm =
                 acc + elm
 
-            matrix
+            matrix      
             |> List.map (fun c -> async {return List.reduce SumUnchecked c})
             |> Async.Parallel
             |> Async.RunSynchronously
             |> Array.reduce SumUnchecked
+
+let rec generateMatrix (n:int) (m:int) (valueGenerator:unit -> int) =
+    let rec row (n:int) (m:int) rows:int list list =
+        let rec column (m:int) col:int list =
+            match m with
+            | 0 -> col
+            | x -> column (x - 1) (List.append col [valueGenerator()])
+        match n with
+        | 0 -> rows
+        | y -> row (n - 1) m (List.append rows [(column m [])])
+    row n m []
+ 
+let genMatrix n =
+    let rnd = (fun () -> System.Random().Next(10))
+    generateMatrix n n rnd
