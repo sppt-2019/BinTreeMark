@@ -25,13 +25,14 @@ let OpenFile fileName =
 let main argv =
     printfn "Setting up benchmarks"
     let l = new Linpack ()
+    
     let matrixSizes = List.map (fun b-> pown 2 b) [1..12]
     let sumProblems = List.map (fun s -> (s, l.Setup(s))) matrixSizes
     let probs = List.map (fun b -> (b, createTree b getRandomNumber)) [1..5]
     
     let sumSeqRunner = new McCollinRunner<int list list, int>(l.SumSequential, sumProblems, "Matrix Sum Sequential", 100L)
     let sumMaReRunner = new McCollinRunner<int list list, int>(l.SumMapReduce, sumProblems, "Matrix Sum Map Reduce", 100L)
-    let sumPaRunner = new McCollinRunner<int list list, int>(l.SumParallel, sumProblems, "Matrix Sum Parallel", 100L)    
+    let sumPaRunner = new McCollinRunner<int list list, int>(l.SumParallel, sumProblems, "Matrix Sum Parallel", 100L)
     let eagerRunner = new McCollinRunner<tree, int list>(leaves, probs, "Eager Sequential", 100L)
     let lazyRunner = new McCollinRunner<tree, int list>(lazyLeaves, probs, "Lazy Sequential", 100L)
     let eagerAsyncRunner = new McCollinRunner<tree, int list>(asyncLeaves, probs, "Eager Async", 100L)
@@ -96,7 +97,7 @@ let main argv =
     printfn "Files be written"
     
     if getOS = Windows then
-        System.Console.ReadLine()
+        ignore(System.Console.ReadLine())
         0 // return an integer exit code
     else
         0 // return an integer exit code
