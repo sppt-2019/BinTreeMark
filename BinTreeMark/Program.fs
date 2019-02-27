@@ -1,6 +1,6 @@
 ﻿open System
-open BinTreeMark.Mark8
-open BinTreeMark.Statistics
+open BinTreeMark.TestRunners
+
 type tree =
     | Node of left : tree * right : tree
     | Leaf of int
@@ -68,16 +68,22 @@ let lazyParallel a =
 [<EntryPoint>]
 let main argv =
     printfn "Building Tree"
-    let t = createTree 5 getRandomNumber
-    printfn "%A" t
+    let bt1 = createTree 1 getRandomNumber
+    let bt2 = createTree 2 getRandomNumber
+    let bt3 = createTree 3 getRandomNumber
+    let bt4 = createTree 4 getRandomNumber
+    let bt5 = createTree 5 getRandomNumber
+    let probs = [bt1; bt2; bt3; bt4; bt5]
+    printfn ""
     printfn "Setting up benchmarks"
-    let eagerRunner = new SestoftRunner<tree, int list>(leaves, t, "Eager Sequential", 250)
-    let lazyRunner = new SestoftRunner<tree, int list>(lazyLeaves, t, "Lazy Sequential", 250)
-    let eagerAsyncRunner = new SestoftRunner<tree, int list>(asyncLeaves, t, "Eager Async", 250)
-    let lazyAsyncRunner = new SestoftRunner<tree, int list>(lazyAsyncLeaves, t, "Lazy Async", 250)
-    let eagerParaRunner = new SestoftRunner<tree, int list>(parallelLeaves, t, "Eager Parallel", 250)
-    let lazyParaRunner = new SestoftRunner<tree, int list>(lazyParallel, t, "Lazy Parallel", 250)
+    let eagerRunner = new MorellRunner<tree, int list>(leaves, probs, "Eager Sequential", 100L)
+    let lazyRunner = new MorellRunner<tree, int list>(lazyLeaves, probs, "Lazy Sequential", 100L)
+    let eagerAsyncRunner = new MorellRunner<tree, int list>(asyncLeaves, probs, "Eager Async", 100L)
+    let lazyAsyncRunner = new MorellRunner<tree, int list>(lazyAsyncLeaves, probs, "Lazy Async", 100L)
+    let eagerParaRunner = new MorellRunner<tree, int list>(parallelLeaves, probs, "Eager Parallel", 100L)
+    let lazyParaRunner = new MorellRunner<tree, int list>(lazyParallel, probs, "Lazy Parallel", 100L)
     
+    printfn ""
     printfn "Running benchmarks"
     eagerRunner.Run()
     lazyRunner.Run()
@@ -86,6 +92,7 @@ let main argv =
     eagerParaRunner.Run()
     lazyParaRunner.Run()
     
+    printfn ""
     printfn "Results"
     printfn "%s" eagerRunner.TitleFormat
     printfn "%s" (eagerRunner.Result())

@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <Compile Include="Statistics.fs" />
-        <Compile Include="Mark8.fs" />
+        <Compile Include="TestRunners.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
