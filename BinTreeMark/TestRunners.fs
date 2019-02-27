@@ -8,11 +8,10 @@ type Clock() =
     member this.Start () = start <- System.Diagnostics.Stopwatch.GetTimestamp()
     member this.Check () = (System.Diagnostics.Stopwatch.GetTimestamp() - start)
 
-type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration) =
+type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration:TimeSpan) =
     let func = func
     let args = args
     let msg = message
-    let dur = int64(duration * 10000)
     let clock = new Clock()
     
     let mutable aMean : double = 0.0
@@ -25,18 +24,18 @@ type SestoftRunner<'T, 'U>(func:'T -> 'U, args:'T, message, duration) =
     member this.Result () = sprintf "%-30s \t %20.2f \t %20.2f" msg this.ArithmeticMean this.Deviation
     
     member this.Run () =
-        let rec RunWhile (start:DateTime) (duration:int64) (sum:double) (times:double list) (iterations:int64) =
-            if DateTime.Now.Subtract(start).Ticks < duration then
+        let rec RunWhile (start:DateTime) (dur:TimeSpan) (sum:double) (times:double list) (iterations:int64) =
+            if DateTime.Now.Subtract(start) < dur then
                 clock.Start()
                 let res = func args
                 let time = double(clock.Check())
                 let newTimes = List.append times [time]
-                RunWhile start duration (time + sum) newTimes (iterations + 1L)
+                RunWhile start dur (time + sum) newTimes (iterations * 2L)
             else
                 let m = mean sum (double(iterations))
                 let sd = standardDeviation times m iterations
                 (m, sd)
-        let resTuple = RunWhile DateTime.Now dur 0.0 [] 0L
+        let resTuple = RunWhile DateTime.Now duration 0.0 [] 0L
         this.ArithmeticMean <- fst resTuple
         this.Deviation <- snd resTuple
 

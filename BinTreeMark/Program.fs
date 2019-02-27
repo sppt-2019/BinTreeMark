@@ -74,6 +74,7 @@ let main argv =
     let bt4 = createTree 4 getRandomNumber
     let bt5 = createTree 5 getRandomNumber
     let probs = [bt1; bt2; bt3; bt4; bt5]
+    
     printfn ""
     printfn "Setting up benchmarks"
     let eagerRunner = new MorellRunner<tree, int list>(leaves, probs, "Eager Sequential", 100L)
