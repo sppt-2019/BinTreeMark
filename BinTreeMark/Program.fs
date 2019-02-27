@@ -20,6 +20,7 @@ let main argv =
     let eagerParaRunner = new MorellRunner<tree, int list>(parallelLeaves, probs, "Eager Parallel", 100L)
     let lazyParaRunner = new MorellRunner<tree, int list>(lazyParallel, probs, "Lazy Parallel", 100L)
     let tplParallelRunner = new MorellRunner<tree, int list>(tplParallelLeaves, probs, "Eager TPL Parallel", 100L)
+    let lazyTPLParallelRunner = new MorellRunner<tree, int list>(lazyTPLLeaves, probs, "Lazy TPL Parallel", 100L)
     
     printfn ""
     printfn "Running benchmarks"
@@ -30,6 +31,7 @@ let main argv =
     eagerParaRunner.Run()
     lazyParaRunner.Run()
     tplParallelRunner.Run()
+    lazyTPLParallelRunner.Run()
     
     printfn ""
     printfn "Results"
@@ -41,6 +43,7 @@ let main argv =
     printfn "%s" (eagerParaRunner.Result())
     printfn "%s" (lazyParaRunner.Result())
     printfn "%s" (tplParallelRunner.Result())
+    printfn "%s" (lazyTPLParallelRunner.Result())
     
     
     let lst = [727.7;1086.5;1091.0;1361.3;1490.5;1956.1]

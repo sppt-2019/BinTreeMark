@@ -66,10 +66,14 @@ let tplParallelLeaves t =
                                 
     leavesAccum t
 
-let lazyAsyncLeaves a =
-    let lst = lazy(asyncLeaves a)
+let lazyAsyncLeaves t =
+    let lst = lazy(asyncLeaves t)
     lst.Value
 
-let lazyParallel a =
-    let lst = lazy(parallelLeaves a)
+let lazyParallel t =
+    let lst = lazy(parallelLeaves t)
+    lst.Value
+    
+let lazyTPLLeaves t =
+    let lst = lazy(tplParallelLeaves t)
     lst.Value
