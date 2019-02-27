@@ -1,8 +1,95 @@
 ﻿open BinTreeMark.TestRunners
 open BinTreeMark.Problems.LeafAccumulator
+open BinTreeMark.Problems.Linpack
+open System.Linq
+
+type tree =
+    | Node of left : tree * right : tree
+    | Leaf of int
+
+let print str = printf "%A\n" str
+
+let getRandomNumber () =
+    let rnd = System.Random()
+    rnd.Next(100)
+
+let leaves a =
+    let rec leavesAccum n leaves =
+        match n with
+        | (Leaf i) -> i :: leaves
+        | Node (left, right) -> leavesAccum left (leavesAccum right leaves)
+    leavesAccum a []
+
+let lazyLeaves a =
+    let lst = lazy(leaves a)
+    lst.Value
+
+let rec createTree depth valueGenerator =
+    match depth with
+    | 1 -> Leaf (valueGenerator())
+    | n -> Node(left = (createTree (depth - 1) valueGenerator), right = (createTree (depth - 1) valueGenerator))
+
+let division leaves =
+    let x = System.Random().Next(1, leaves)
+    let y = leaves - x
+    (x, y)
+    
+let rec createRandomTree leaves valueGenerator =
+    let div = division leaves
+    match leaves with
+    | 1 -> Leaf (valueGenerator())
+    | n -> Node(left = (createRandomTree (fst div) valueGenerator), right = (createRandomTree (snd div) valueGenerator))
+
+let asyncLeaves t =
+    let rec asyncLeavesAccum (t:tree) (leaves:int list) = async {
+        match t with
+        | (Leaf i) -> return i::leaves
+        | Node (left, right) -> return Async.RunSynchronously (asyncLeavesAccum left (Async.RunSynchronously(asyncLeavesAccum right leaves)))
+    }
+    Async.RunSynchronously (asyncLeavesAccum t [])
+
+let parallelLeaves t =
+    let rec asyncAccum (t:tree) = async {        
+        match t with
+        | (Leaf i) -> return [i]
+        | Node (left, right) -> return [(asyncAccum left); (asyncAccum right)]
+                                       |> Async.Parallel
+                                       |> Async.RunSynchronously
+                                       |> List.concat
+    }
+    Async.RunSynchronously (asyncAccum t)
+
+let lazyAsyncLeaves a =
+    let lst = lazy(asyncLeaves a)
+    lst.Value
+
+let lazyParallel a =
+    let lst = lazy(parallelLeaves a)
+    lst.Value
 
 [<EntryPoint>]
 let main argv =
+    let l = new Linpack ()
+    
+    printfn "Building Linpack matrices"
+    let sumProblems = List.map (fun b -> l.Setup(pown b 2)) [1..12] 
+    let sumSeqRunner = new MorellRunner<int list list, int>(l.SumSequential, sumProblems, "Matrix Sum Sequential", 100L)
+    let sumMaReRunner = new MorellRunner<int list list, int>(l.SumMapReduce, sumProblems, "Matrix Sum Map Reduce", 100L)
+    let sumPaRunner = new MorellRunner<int list list, int>(l.SumParallel, sumProblems, "Matrix Sum Parallel", 100L)
+
+    printfn "Running Linpack summation"
+    sumSeqRunner.Run()
+    sumMaReRunner.Run()
+    sumPaRunner.Run()
+
+    printfn ""
+    printfn "Results"
+    printfn "%s" sumSeqRunner.TitleFormat
+    printfn "%s" (sumSeqRunner.Result())
+    printfn "%s" (sumMaReRunner.Result())
+    printfn "%s" (sumPaRunner.Result())
+    
+
     printfn "Building Tree"
     let bt1 = createTree 1 getRandomNumber
     let bt2 = createTree 2 getRandomNumber
@@ -46,5 +133,5 @@ let main argv =
     printfn "%s" (lazyTPLParallelRunner.Result())
     
     
-    let lst = [727.7;1086.5;1091.0;1361.3;1490.5;1956.1]
+    let lst = [727.7;1086.5;1091.0;1361.3;1490.5;1956.1] 
     0 // return an integer exit code

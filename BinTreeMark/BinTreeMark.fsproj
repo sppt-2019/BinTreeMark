@@ -9,6 +9,7 @@
       <Compile Include="Problems\LeafAccumulator.fs" />
       <Compile Include="Statistics.fs" />
       <Compile Include="TestRunners.fs" />
+      <Compile Include="Linpack.fs" />
       <Compile Include="Program.fs" />
     </ItemGroup>
 
