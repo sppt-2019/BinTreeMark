@@ -20,7 +20,7 @@ let main argv =
     printfn "Setting up benchmarks"
     let l = new Linpack ()
     let sumProblems = List.map (fun s -> pown 2 s) [1..12]
-    let probs = [createTree 1 getRandomNumber; createTree 2 getRandomNumber; createTree 3 getRandomNumber; createTree 4 getRandomNumber; createTree 5 getRandomNumber]                                                                                                                                    getRandomNumber]
+    let probs = [createTree 1 getRandomNumber; createTree 2 getRandomNumber; createTree 3 getRandomNumber; createTree 4 getRandomNumber; createTree 5 getRandomNumber]
 
     let sumSeqRunner = new MorellRunner<int list list, int, int>(l.SumSequential, sumProblems, l.Setup, "Matrix Sum Sequential", 100L)
     let sumMaReRunner = new MorellRunner<int list list, int, int>(l.SumMapReduce, sumProblems, l.Setup, "Matrix Sum Map Reduce", 100L)
@@ -63,7 +63,7 @@ let main argv =
     printfn "%s" (lazyTPLParallelRunner.Result())
     
     if getOS = Windows then
-        System.Console.ReadLine()
+        ignore(System.Console.ReadLine())
         0 // return an integer exit code
     else
         0 // return an integer exit code
