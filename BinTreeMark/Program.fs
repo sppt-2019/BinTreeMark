@@ -1,6 +1,6 @@
 ﻿open System
 open BinTreeMark.TestRunners
-open BinTreeMark.Problems
+open BinTreeMark.Problems.LeafAccumulator
 
 [<EntryPoint>]
 let main argv =

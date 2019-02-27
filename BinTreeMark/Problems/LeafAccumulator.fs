@@ -1,10 +1,8 @@
-module BinTreeMark.Problems
+module BinTreeMark.Problems.LeafAccumulator
 
 type tree =
     | Node of left : tree * right : tree
     | Leaf of int
-
-let print str = printf "%A\n" str
 
 let getRandomNumber () =
     let rnd = System.Random()
