@@ -1,6 +1,11 @@
 ﻿module BinTreeMark.Problems.Linpack
 
+open System.Threading.Tasks
+
 type Linpack () =
+    let SumUnchecked acc elm = 
+        acc + elm
+
     member this.Rnd = System.Random()
 
     member this.Setup (n:int) = 
@@ -14,45 +19,30 @@ type Linpack () =
             | i -> GenerateRandomList n :: GenerateListOfLists (i-1)
         GenerateListOfLists n
 
-        member this.SumSequential (matrix: int list list) =
-            let rec SumColumn c =
-                match c with
-                | [] -> 0
-                | c::rest -> c + (SumColumn rest)
-
-            match matrix with
+    member this.SumSequential (matrix: int list list) =
+        let rec SumColumn c =
+            match c with
             | [] -> 0
-            | c::rest -> SumColumn c + (this.SumSequential rest)
+            | c::rest -> c + (SumColumn rest)
 
-        member this.SumMapReduce (matrix:int list list) =
-            let rec SumUnchecked acc elm =
-                acc + elm
+        match matrix with
+        | [] -> 0
+        | c::rest -> SumColumn c + (this.SumSequential rest)
 
-            matrix
-            |> List.map (fun c -> List.reduce SumUnchecked c)
-            |> List.reduce SumUnchecked
+    member this.SumMapReduce (matrix:int list list) =
+        matrix
+        |> List.map (fun c -> List.reduce SumUnchecked c)
+        |> List.reduce SumUnchecked
 
-        member this.SumParallel (matrix:int list list) =
-            let rec SumUnchecked acc elm =
-                acc + elm
+    member this.SumParallel (matrix:int list list) =
+        matrix      
+        |> List.map (fun c -> async {return List.reduce SumUnchecked c})
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> Array.reduce SumUnchecked
 
-            matrix      
-            |> List.map (fun c -> async {return List.reduce SumUnchecked c})
-            |> Async.Parallel
-            |> Async.RunSynchronously
-            |> Array.reduce SumUnchecked
-
-let rec generateMatrix (n:int) (m:int) (valueGenerator:unit -> int) =
-    let rec row (n:int) (m:int) rows:int list list =
-        let rec column (m:int) col:int list =
-            match m with
-            | 0 -> col
-            | x -> column (x - 1) (List.append col [valueGenerator()])
-        match n with
-        | 0 -> rows
-        | y -> row (n - 1) m (List.append rows [(column m [])])
-    row n m []
- 
-let genMatrix n =
-    let rnd = (fun () -> System.Random().Next(10))
-    generateMatrix n n rnd
+    member this.SumTasks(matrix: int list list) =
+        matrix      
+        |> List.map (fun c -> Task.Factory.StartNew<int> (fun () -> List.reduce SumUnchecked c))
+        |> List.map (fun t -> t.Result)
+        |> List.reduce SumUnchecked
