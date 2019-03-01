@@ -16,4 +16,4 @@ let standardDeviation (lst:double list) (mean:double) (iterations:int64) =
     sqrt ((deltaTimeSquared - mean * mean * double(iterations)) / double(iterations - 1L));
     
 let mean (sum:double) (iterations:double) =
-        sum / iterations
+    sum / iterations

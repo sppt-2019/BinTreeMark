@@ -48,7 +48,6 @@ type MorellRunner<'T, 'P, 'U>(func:'T -> 'U, problems:int list, problemGenerator
     let reps = repitions
     let clock = new Clock()
     
-    let mutable aMean : double = Double.NaN
     let mutable results : Dictionary<int, double> = new Dictionary<int, double>()
                      
     member val Results = results with get, set
