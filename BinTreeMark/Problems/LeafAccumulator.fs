@@ -37,14 +37,6 @@ let rec createRandomTree leaves valueGenerator =
     | 1 -> Leaf (valueGenerator())
     | n -> Node(left = (createRandomTree (fst div) valueGenerator), right = (createRandomTree (snd div) valueGenerator))
 
-let asyncLeaves t =
-    let rec asyncLeavesAccum (t:tree) (leaves:int list) = async {
-        match t with
-        | (Leaf i) -> return i::leaves
-        | Node (left, right) -> return Async.RunSynchronously (asyncLeavesAccum left (Async.RunSynchronously(asyncLeavesAccum right leaves)))
-    }
-    Async.RunSynchronously (asyncLeavesAccum t [])
-
 let parallelLeaves t =
     let rec asyncAccum (t:tree) = async {        
         match t with
@@ -65,10 +57,6 @@ let tplParallelLeaves t =
                                     (Task.Factory.StartNew<int list> (fun () ->  leavesAccum right)).Result
                                 
     leavesAccum t
-
-let lazyAsyncLeaves t =
-    let lst = lazy(asyncLeaves t)
-    lst.Value
 
 let lazyParallel t =
     let lst = lazy(parallelLeaves t)

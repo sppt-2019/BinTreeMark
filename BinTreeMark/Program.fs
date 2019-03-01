@@ -30,7 +30,7 @@ let main argv =
     let matrixSizes = List.map (fun b-> pown 2 b) [1..12]
     let sumProblems = List.map (fun s -> (s, l.Setup(s))) matrixSizes
     printfn "Generating binary trees"
-    let probs = List.map (fun b -> (b, createTree b getRandomNumber)) [1..21]
+    let probs = List.map (fun b -> (b, createTree b getRandomNumber)) [1..7]
     
     let sumSeqRunner = new McCollinRunner<int list list, int>(l.SumSequential, sumProblems, "Matrix Sum Sequential", 100L)
     let sumMaReRunner = new McCollinRunner<int list list, int>(l.SumMapReduce, sumProblems, "Matrix Sum Map Reduce", 100L)
@@ -38,8 +38,6 @@ let main argv =
     let sumTaRunner = new McCollinRunner<int list list, int>(l.SumTasks, sumProblems, "Matrix Sum Tasks", 100L)
     let eagerRunner = new McCollinRunner<tree, int list>(leaves, probs, "Eager Sequential", 100L)
     let lazyRunner = new McCollinRunner<tree, int list>(lazyLeaves, probs, "Lazy Sequential", 100L)
-    let eagerAsyncRunner = new McCollinRunner<tree, int list>(asyncLeaves, probs, "Eager Async", 100L)
-    let lazyAsyncRunner = new McCollinRunner<tree, int list>(lazyAsyncLeaves, probs, "Lazy Async", 100L)
     let eagerParaRunner = new McCollinRunner<tree, int list>(parallelLeaves, probs, "Eager Parallel", 100L)
     let lazyParaRunner = new McCollinRunner<tree, int list>(lazyParallel, probs, "Lazy Parallel", 100L)
     let tplParallelRunner = new McCollinRunner<tree, int list>(tplParallelLeaves, probs, "Eager TPL Parallel", 100L)
@@ -52,8 +50,6 @@ let main argv =
     sumTaRunner.Run()
     eagerRunner.Run()
     lazyRunner.Run()
-    eagerAsyncRunner.Run()
-    lazyAsyncRunner.Run()
     eagerParaRunner.Run()
     lazyParaRunner.Run()
     tplParallelRunner.Run()
@@ -80,16 +76,12 @@ let main argv =
 
     for eagerSeq in eagerRunner.Results do
         let lazySeq = lazyRunner.Results.[eagerSeq.Key]
-        let eagerAsync = eagerAsyncRunner.Results.[eagerSeq.Key]
-        let lazyAsync = lazyAsyncRunner.Results.[eagerSeq.Key]
         let eagerPar = eagerParaRunner.Results.[eagerSeq.Key]
         let lazyPar = lazyParaRunner.Results.[eagerSeq.Key]
         let eagerTPL = tplParallelRunner.Results.[eagerSeq.Key]
         let lazyTPL = lazyTPLParallelRunner.Results.[eagerSeq.Key]
-        let line = (sprintf "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f" eagerSeq.Key (fst eagerSeq.Value) (snd eagerSeq.Value) 
+        let line = (sprintf "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f" eagerSeq.Key (fst eagerSeq.Value) (snd eagerSeq.Value) 
             (fst lazySeq) (snd lazySeq)
-            (fst eagerAsync) (snd eagerAsync)
-            (fst lazyAsync) (snd lazyAsync)
             (fst eagerPar) (snd eagerPar)
             (fst lazyPar) (snd lazyPar)
             (fst eagerTPL) (snd eagerTPL)
