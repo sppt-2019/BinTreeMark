@@ -93,7 +93,7 @@ type McCollinRunner<'T, 'U>(func:'T -> 'U, problems:(int * 'T) list, message:str
                 times <- List.append times [time]
 
             let m = mean (List.sum times) (double(reps))
-            let sd = standardDeviation times m reps
+            let sd = realStandardDeviation times m //reps
             let resTuple = (m, sd)
             this.Results.[fst problem] <- resTuple
             i <- i + 1
